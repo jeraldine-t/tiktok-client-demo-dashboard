@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Client Prioritization Dashboard | 客户优先级仪表盘</title>
+  <style>
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --pink: #fe2c55;
+      --cyan: #25f4ee;
+      --ink: #111318;
+      --muted: #69707d;
+      --line: #e5e8ee;
+      --panel: #ffffff;
+      --page: #f4f6f8;
+      --soft-pink: #fff0f4;
+      --soft-cyan: #eaffff;
+      --soft-green: #edf9f4;
+      --green: #10845a;
+      --amber: #b76100;
+      --shadow: 0 18px 48px rgba(17, 19, 24, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      color: var(--white);
+      background:
+        radial-gradient(circle at 88% 24%, rgba(37, 244, 238, 0.22), transparent 26rem),
+        radial-gradient(circle at 18% 0%, rgba(254, 44, 85, 0.24), transparent 24rem),
+        var(--black);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .topbar-inner {
+      width: min(1440px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 26px 0 34px;
+    }
+
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 34px;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, transparent 0 42%, var(--pink) 42% 56%, transparent 56%),
+        linear-gradient(45deg, transparent 0 42%, var(--cyan) 42% 56%, transparent 56%),
+        #111;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+      flex: 0 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .zh {
+      display: block;
+      margin-top: 4px;
+      color: inherit;
+      font-size: 0.82em;
+      font-weight: 650;
+      line-height: 1.35;
+      opacity: 0.72;
+      text-transform: none;
+    }
+
+    .eyebrow .zh {
+      letter-spacing: 0;
+      opacity: 0.82;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 44px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    h1 .zh {
+      margin-top: 10px;
+      font-size: 0.45em;
+      font-weight: 750;
+      line-height: 1.35;
+      opacity: 0.78;
+    }
+
+    .date-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.78);
+      background: rgba(255, 255, 255, 0.08);
+      white-space: nowrap;
+    }
+
+    .date-pill .zh {
+      margin-top: 1px;
+      font-size: 11px;
+    }
+
+    .date-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 18px rgba(37, 244, 238, 0.9);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.24fr) minmax(320px, 0.76fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .hero-copy {
+      display: flex;
+      min-height: 260px;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .hero-copy p {
+      width: min(820px, 100%);
+      margin: 16px 0 0;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .hero-copy p .zh {
+      max-width: 760px;
+      font-size: 14px;
+    }
+
+    .logic-strip {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .logic-card {
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .logic-card strong {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 15px;
+    }
+
+    .logic-card span {
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .logic-card strong .zh,
+    .logic-card span .zh {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .hero-score {
+      position: relative;
+      overflow: hidden;
+      min-height: 260px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-score::before {
+      position: absolute;
+      inset: auto -18% -42% 34%;
+      width: 280px;
+      height: 280px;
+      border: 34px solid rgba(37, 244, 238, 0.2);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .score-label {
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .score-value {
+      margin: 18px 0 4px;
+      font-size: clamp(58px, 10vw, 92px);
+      font-weight: 900;
+      line-height: 0.9;
+    }
+
+    .score-value span {
+      color: var(--cyan);
+    }
+
+    .score-note {
+      max-width: 320px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(1440px, calc(100% - 48px));
+      margin: -28px auto 46px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-card {
+      min-height: 142px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::after {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 92px;
+      height: 5px;
+      background: var(--accent, var(--black));
+      content: "";
+    }
+
+    .kpi-title {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .kpi-title .zh {
+      letter-spacing: 0;
+      opacity: 0.86;
+    }
+
+    .kpi-value {
+      margin: 0;
+      color: var(--black);
+      font-size: clamp(30px, 4vw, 44px);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .kpi-sub {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.38fr) minmax(0, 0.62fr);
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--black);
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .panel-subtitle {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .donut-wrap {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 22px;
+      align-items: center;
+    }
+
+    .donut {
+      --growth-angle: 216deg;
+      width: 220px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--pink) 0 var(--growth-angle), var(--cyan) var(--growth-angle) 360deg);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    }
+
+    .donut::after {
+      width: 128px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--white);
+      color: var(--black);
+      content: attr(data-center);
+      font-size: 28px;
+      font-weight: 900;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .legend {
+      display: grid;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 12px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 42px;
+      border-radius: 999px;
+      background: var(--swatch);
+    }
+
+    .legend-title {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .legend-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend-value {
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .focus-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .focus-item {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .focus-rank {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      color: var(--white);
+      background: var(--black);
+      font-weight: 900;
+    }
+
+    .focus-item strong {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .focus-item span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .table-panel {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toolbar-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .result-count {
+      min-height: 32px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: var(--black);
+      background: #edf1f5;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(210px, 1.35fr) minmax(240px, 1.1fr) minmax(140px, 0.7fr) minmax(140px, 0.7fr) minmax(150px, 0.7fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-field,
+    .select-field {
+      min-height: 42px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: var(--white);
+      outline: none;
+    }
+
+    .search-field {
+      padding: 0 14px;
+    }
+
+    .select-field {
+      padding: 0 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .search-field:focus,
+    .select-field:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(37, 244, 238, 0.18);
+    }
+
+    .segment {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      min-height: 42px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1f4f7;
+    }
+
+    .segment button {
+      border: 0;
+      border-radius: 6px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 13px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .segment button .zh {
+      margin-top: 1px;
+      font-size: 10px;
+      font-weight: 750;
+    }
+
+    .segment button[aria-pressed="true"] {
+      color: var(--white);
+      background: var(--black);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    }
+
+    .table-scroll {
+      overflow: auto;
+      max-height: 640px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1220px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      color: #5d6471;
+      background: #fbfcfe;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--white);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover td {
+      background: #fbfdff;
+    }
+
+    .client-cell strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 14px;
+    }
+
+    .client-cell span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .cell-en {
+      display: block;
+      font-weight: 750;
+    }
+
+    td .zh,
+    th .zh {
+      color: var(--muted);
+      letter-spacing: 0;
+    }
+
+    .money,
+    .roas {
+      color: var(--black);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: flex-start;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .tag .zh {
+      margin-top: 0;
+      font-size: 10px;
+      line-height: 1.1;
+    }
+
+    .tag-growth {
+      color: #a20c2c;
+      background: var(--soft-pink);
+    }
+
+    .tag-nurture {
+      color: #00736f;
+      background: var(--soft-cyan);
+    }
+
+    .tag-healthy {
+      color: var(--green);
+      background: var(--soft-green);
+    }
+
+    .tag-leaky {
+      color: var(--amber);
+      background: #fff4e5;
+    }
+
+    .action-cell {
+      width: 350px;
+    }
+
+    .action-chip {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .action-chip.growth {
+      color: #851029;
+      background: linear-gradient(90deg, var(--soft-pink), #ffffff);
+      border-color: #ffd0db;
+    }
+
+    .action-chip.nurture {
+      color: #006865;
+      background: linear-gradient(90deg, var(--soft-cyan), #ffffff);
+      border-color: #bcfffc;
+    }
+
+    .empty-state {
+      padding: 38px 22px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid,
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar-inner,
+      main {
+        width: min(100% - 28px, 1440px);
+      }
+
+      .nav-row,
+      .toolbar-top,
+      .panel-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .date-pill,
+      .result-count {
+        width: fit-content;
+      }
+
+      .logic-strip,
+      .kpi-grid,
+      .filters,
+      .donut-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        min-height: unset;
+      }
+
+      .donut {
+        width: min(220px, 100%);
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="nav-row">
+          <div class="brand-lockup">
+            <div class="brand-mark" aria-hidden="true"></div>
+            <div>
+              <p class="eyebrow">Industry Strategy and Operations<span class="zh">行业战略与运营</span></p>
+              <h1>Client Prioritization Dashboard<span class="zh">客户优先级仪表盘</span></h1>
+            </div>
+          </div>
+          <div class="date-pill" aria-label="Dashboard scope">
+            <span class="date-dot" aria-hidden="true"></span>
+            <span>North America Accounts<span class="zh">北美客户账户</span></span>
+          </div>
+        </div>
+
+        <section class="hero-grid" aria-labelledby="logic-title">
+          <div class="hero-copy">
+            <div>
+              <p class="eyebrow">60-40 prioritization logic<span class="zh">60-40 优先级逻辑</span></p>
+              <h1 id="logic-title">Operationalize sales focus by funnel readiness.<span class="zh">根据漏斗成熟度落地销售优先级。</span></h1>
+              <p>
+                Use ROAS and funnel health to split managed clients into aggressive scaling targets and mid-funnel repair targets, then give each seller a clear next best action.
+                <span class="zh">结合 ROAS 与漏斗健康度，将客户划分为可快速放大的目标和需要修复中漏斗的目标，并为每位销售提供清晰的下一步行动。</span>
+              </p>
+            </div>
+            <div class="logic-strip" aria-label="Prioritization rules">
+              <div class="logic-card">
+                <strong>Bucket 1: 60% Growth Ready<span class="zh">第一类：60% 增长就绪客户</span></strong>
+                <span>Healthy funnel with ROAS above 2.0. Pitch Smart+ and GMV Max for aggressive scaling.<span class="zh">漏斗健康且 ROAS 高于 2.0。主推 Smart+ 与 GMV Max，推动积极扩量。</span></span>
+              </div>
+              <div class="logic-card">
+                <strong>Bucket 2: 40% Nurturing<span class="zh">第二类：40% 培育修复客户</span></strong>
+                <span>Leaky funnel with ROAS below 2.0. Pitch TikTok Market Scope and consideration formats to fix drop-off.<span class="zh">漏斗流失且 ROAS 低于 2.0。主推 TikTok Market Scope 与考虑阶段广告形式，修复中漏斗流失。</span></span>
+              </div>
+            </div>
+          </div>
+          <aside class="hero-score" aria-label="Demo split">
+            <div class="score-label">Demo allocation<span class="zh">演示账户分配</span></div>
+            <div class="score-value"><span>60</span>/40</div>
+          </aside>
+        </section>
+      </div>
+    </header>
+
+    <main>
+      <section class="kpi-grid" aria-label="KPI summary">
+        <article class="kpi-card" style="--accent: var(--black);">
+          <p class="kpi-title">Total Managed Spend<span class="zh">管理总月花费</span></p>
+          <p class="kpi-value" id="totalSpend">$0</p>
+          <p class="kpi-sub">Monthly spend across all demo accounts.<span class="zh">所有演示客户的月度广告花费总和。</span></p>
+        </article>
+        <article class="kpi-card" style="--accent: var(--pink);">
+          <p class="kpi-title">Growth Ready Clients<span class="zh">增长就绪客户</span></p>
+          <p class="kpi-value" id="growthPercent">0%</p>
+          <p class="kpi-sub" id="growthSub">0 clients ready for Smart+ and GMV Max.<span class="zh">0 个客户适合推进 Smart+ 与 GMV Max。</span></p>
+        </article>
+        <article class="kpi-card" style="--accent: var(--cyan);">
+          <p class="kpi-title">Nurturing Clients<span class="zh">培育修复客户</span></p>
+          <p class="kpi-value" id="nurturePercent">0%</p>
+          <p class="kpi-sub" id="nurtureSub">0 clients need mid-funnel recovery.<span class="zh">0 个客户需要修复中漏斗转化。</span></p>
+        </article>
+      </section>
+
+      <section class="dashboard-grid" aria-label="Dashboard visuals">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Prioritization Split<span class="zh">优先级分布</span></h2>
+              <p class="panel-subtitle">Share of client accounts by recommended sales motion.<span class="zh">按推荐销售动作划分的客户占比。</span></p>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut" id="splitDonut" data-center="60%" role="img" aria-label="60 percent Growth Ready, 40 percent Nurturing"></div>
+            <div class="legend" id="splitLegend"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Highest Spend Priorities<span class="zh">最高花费优先客户</span></h2>
+              <p class="panel-subtitle">The first five accounts sellers should review this week.<span class="zh">本周销售团队应优先查看的五个高花费客户。</span></p>
+            </div>
+          </div>
+          <div class="focus-list" id="focusList"></div>
+        </article>
+      </section>
+
+      <section class="panel table-panel" aria-label="Client action table">
+        <div class="table-toolbar">
+          <div class="toolbar-top">
+            <div>
+              <h2>Account Action Table<span class="zh">客户行动表</span></h2>
+              <p class="panel-subtitle">Filter the 50-account book by bucket, vertical, funnel objective, country, or client name.<span class="zh">按客户类型、行业、漏斗目标、国家或客户名称筛选 50 个账户。</span></p>
+            </div>
+            <div class="result-count" id="resultCount">0 accounts shown</div>
+          </div>
+          <div class="filters">
+            <input class="search-field" id="searchInput" type="search" placeholder="Search client, vertical, or country / 搜索客户、行业或国家" aria-label="Search client, vertical, or country">
+            <div class="segment" aria-label="Bucket filter">
+              <button type="button" class="bucket-filter" data-bucket="All" aria-pressed="true">All<span class="zh">全部</span></button>
+              <button type="button" class="bucket-filter" data-bucket="Growth Ready" aria-pressed="false">Growth<span class="zh">增长</span></button>
+              <button type="button" class="bucket-filter" data-bucket="Nurturing" aria-pressed="false">Nurture<span class="zh">培育</span></button>
+            </div>
+            <select class="select-field" id="verticalFilter" aria-label="Filter by vertical">
+              <option value="All">All verticals / 全部行业</option>
+            </select>
+            <select class="select-field" id="objectiveFilter" aria-label="Filter by funnel objective">
+              <option value="All">All objectives / 全部目标</option>
+            </select>
+            <select class="select-field" id="countryFilter" aria-label="Filter by country">
+              <option value="All">All countries / 全部国家</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Client<span class="zh">客户</span></th>
+                <th>Country<span class="zh">国家</span></th>
+                <th>Vertical<span class="zh">行业</span></th>
+                <th>Monthly Spend<span class="zh">月花费</span></th>
+                <th>ROAS<span class="zh">广告支出回报</span></th>
+                <th>Funnel Health<span class="zh">漏斗健康度</span></th>
+                <th>Objective<span class="zh">漏斗目标</span></th>
+                <th>Bucket<span class="zh">客户类型</span></th>
+                <th>Next Best Action for Sales<span class="zh">销售下一步最佳行动</span></th>
+              </tr>
+            </thead>
+            <tbody id="clientRows"></tbody>
+          </table>
+          <div class="empty-state" id="emptyState" hidden>No accounts match the current filters.<span class="zh">没有符合当前筛选条件的账户。</span></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="application/json" id="client-data">
+[
+  {"clientName":"Aurora Beauty Co.","vertical":"Beauty","monthlySpend":184000,"currentRoas":3.8,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"Northstar Outfitters","vertical":"Fashion","monthlySpend":167500,"currentRoas":3.3,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"PixelForge Gaming","vertical":"Gaming","monthlySpend":152000,"currentRoas":3.1,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"FreshCart Market","vertical":"E-commerce","monthlySpend":141000,"currentRoas":2.9,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"Volt Mobility","vertical":"Auto","monthlySpend":136500,"currentRoas":2.7,"funnelHealth":"Healthy","funnelObjective":"Consideration"},
+  {"clientName":"GlowHaus Skin","vertical":"Beauty","monthlySpend":128000,"currentRoas":2.8,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"CircuitCloud","vertical":"Tech","monthlySpend":124500,"currentRoas":3.5,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"SnackWave Foods","vertical":"FMCG","monthlySpend":118000,"currentRoas":2.5,"funnelHealth":"Healthy","funnelObjective":"Consideration"},
+  {"clientName":"RidgeLine Travel","vertical":"Travel","monthlySpend":113000,"currentRoas":2.4,"funnelHealth":"Healthy","funnelObjective":"Consideration"},
+  {"clientName":"MetroFit Gear","vertical":"Sports","monthlySpend":109500,"currentRoas":3.0,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"HomeNest Direct","vertical":"E-commerce","monthlySpend":103000,"currentRoas":2.6,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"NovaStream Media","vertical":"Entertainment","monthlySpend":98500,"currentRoas":2.3,"funnelHealth":"Healthy","funnelObjective":"Awareness"},
+  {"clientName":"Canyon Coffee","vertical":"FMCG","monthlySpend":94000,"currentRoas":2.7,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"LuxeLoop Fashion","vertical":"Fashion","monthlySpend":91500,"currentRoas":3.2,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"SwiftPay Finance","vertical":"Finance","monthlySpend":89000,"currentRoas":2.2,"funnelHealth":"Healthy","funnelObjective":"Consideration"},
+  {"clientName":"BrightByte Devices","vertical":"Tech","monthlySpend":84500,"currentRoas":2.9,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"TerraTrail Gear","vertical":"Sports","monthlySpend":81000,"currentRoas":2.5,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"MintLeaf Grocery","vertical":"FMCG","monthlySpend":77500,"currentRoas":2.4,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"ArcadeAtlas","vertical":"Gaming","monthlySpend":74200,"currentRoas":3.4,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"CloudNine Mattresses","vertical":"E-commerce","monthlySpend":71000,"currentRoas":2.6,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"StyleFoundry","vertical":"Fashion","monthlySpend":68200,"currentRoas":2.8,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"PulseWell Health","vertical":"Health","monthlySpend":65100,"currentRoas":2.3,"funnelHealth":"Healthy","funnelObjective":"Consideration"},
+  {"clientName":"KitchenKind","vertical":"E-commerce","monthlySpend":62300,"currentRoas":2.9,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"Beacon Learning","vertical":"Education","monthlySpend":59800,"currentRoas":2.1,"funnelHealth":"Healthy","funnelObjective":"Consideration"},
+  {"clientName":"AeroWear Studio","vertical":"Fashion","monthlySpend":57200,"currentRoas":2.7,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"CraveCraft Snacks","vertical":"FMCG","monthlySpend":54100,"currentRoas":2.5,"funnelHealth":"Healthy","funnelObjective":"Awareness"},
+  {"clientName":"TrueNorth Insurance","vertical":"Finance","monthlySpend":51800,"currentRoas":2.2,"funnelHealth":"Healthy","funnelObjective":"Consideration"},
+  {"clientName":"SonicBloom Audio","vertical":"Tech","monthlySpend":49200,"currentRoas":3.0,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"PetalBox Florals","vertical":"E-commerce","monthlySpend":46800,"currentRoas":2.4,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"UrbanPace Shoes","vertical":"Fashion","monthlySpend":44500,"currentRoas":2.6,"funnelHealth":"Healthy","funnelObjective":"Conversion"},
+  {"clientName":"BluePeak Apparel","vertical":"Fashion","monthlySpend":132000,"currentRoas":1.7,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"QuantumHome IoT","vertical":"Tech","monthlySpend":126000,"currentRoas":1.5,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"HarvestJar Foods","vertical":"FMCG","monthlySpend":119500,"currentRoas":1.8,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"Wanderly Hotels","vertical":"Travel","monthlySpend":112000,"currentRoas":1.6,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"ModMuse Beauty","vertical":"Beauty","monthlySpend":106500,"currentRoas":1.9,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"PrimePlay Arcade","vertical":"Gaming","monthlySpend":99000,"currentRoas":1.4,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"EverGreen Home","vertical":"E-commerce","monthlySpend":93500,"currentRoas":1.8,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"CivicDrive Auto","vertical":"Auto","monthlySpend":87200,"currentRoas":1.6,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"CoreFlex Wellness","vertical":"Health","monthlySpend":80800,"currentRoas":1.7,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"FinchPay Cards","vertical":"Finance","monthlySpend":75400,"currentRoas":1.5,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"LoopLab Apparel","vertical":"Fashion","monthlySpend":70100,"currentRoas":1.9,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"DailyDose Vitamins","vertical":"Health","monthlySpend":64900,"currentRoas":1.6,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"StreamVault","vertical":"Entertainment","monthlySpend":60300,"currentRoas":1.8,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"DeskMint Office","vertical":"E-commerce","monthlySpend":55800,"currentRoas":1.7,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"SparkCart Kids","vertical":"E-commerce","monthlySpend":51200,"currentRoas":1.4,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"GreenFork Kitchen","vertical":"FMCG","monthlySpend":47900,"currentRoas":1.8,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"SummitLearn","vertical":"Education","monthlySpend":43400,"currentRoas":1.6,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"AuraBank Digital","vertical":"Finance","monthlySpend":39200,"currentRoas":1.7,"funnelHealth":"Leaky","funnelObjective":"Consideration"},
+  {"clientName":"NeonWave Events","vertical":"Entertainment","monthlySpend":35100,"currentRoas":1.5,"funnelHealth":"Leaky","funnelObjective":"Awareness"},
+  {"clientName":"HorizonPets","vertical":"E-commerce","monthlySpend":31800,"currentRoas":1.9,"funnelHealth":"Leaky","funnelObjective":"Consideration"}
+]
+  </script>
+
+  <script>
+    const rawClients = JSON.parse(document.getElementById("client-data").textContent);
+    const countryAssignments = [
+      "USA", "USA", "USA", "Canada", "Mexico",
+      "USA", "Canada", "USA", "Mexico", "USA",
+      "Canada", "USA", "Mexico", "USA", "Canada",
+      "USA", "Mexico", "USA", "Canada", "USA",
+      "Mexico", "USA", "Canada", "USA", "Mexico",
+      "USA", "Canada", "USA", "Mexico", "USA",
+      "Canada", "USA", "Mexico", "USA", "Canada",
+      "USA", "Mexico", "USA", "Canada", "USA",
+      "Mexico", "USA", "Canada", "USA", "Mexico",
+      "USA", "Canada", "USA", "Mexico", "USA"
+    ];
+
+    const zh = {
+      countries: {
+        USA: "美国",
+        Canada: "加拿大",
+        Mexico: "墨西哥"
+      },
+      verticals: {
+        Auto: "汽车",
+        Beauty: "美妆",
+        "E-commerce": "电商",
+        Education: "教育",
+        Entertainment: "娱乐",
+        Fashion: "时尚",
+        Finance: "金融",
+        FMCG: "快消品",
+        Gaming: "游戏",
+        Health: "健康",
+        Sports: "运动",
+        Tech: "科技",
+        Travel: "旅游"
+      },
+      objectives: {
+        Awareness: "认知",
+        Consideration: "考虑",
+        Conversion: "转化"
+      },
+      health: {
+        Healthy: "健康",
+        Leaky: "流失",
+      },
+      buckets: {
+        "Growth Ready": "增长就绪",
+        Nurturing: "培育修复",
+        "Needs Review": "需要复盘"
+      }
+    };
+
+    const currencyFormatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0
+    });
+
+    const state = {
+      query: "",
+      bucket: "All",
+      vertical: "All",
+      objective: "All",
+      country: "All"
+    };
+
+    function classifyClient(client) {
+      const isGrowthReady = client.funnelHealth === "Healthy" && client.currentRoas > 2.0;
+      const isNurturing = client.funnelHealth === "Leaky" && client.currentRoas < 2.0;
+
+      if (isGrowthReady) {
+        return {
+          bucket: "Growth Ready",
+          action: "Pitch Smart+ and GMV Max for aggressive scaling.",
+          actionZh: "主推 Smart+ 与 GMV Max，推动积极扩量。",
+          actionType: "growth"
+        };
+      }
+
+      if (isNurturing) {
+        return {
+          bucket: "Nurturing",
+          action: "Pitch TikTok Market Scope industry data and Consideration Formats: Search Ads, Spark Ads.",
+          actionZh: "主推 TikTok Market Scope 行业数据，以及 Search Ads、Spark Ads 等考虑阶段广告形式。",
+          actionType: "nurture"
+        };
+      }
+
+      return {
+        bucket: "Needs Review",
+        action: "Review account diagnostics before selecting the next sales motion.",
+        actionZh: "先复盘账户诊断，再选择下一步销售动作。",
+        actionType: "review"
+      };
+    }
+
+    const clients = rawClients.map((client, index) => ({
+      id: index + 1,
+      country: client.country || countryAssignments[index],
+      ...client,
+      ...classifyClient(client)
+    }));
+
+    function bilingual(en, cn) {
+      return `<span class="cell-en">${en}</span><span class="zh">${cn}</span>`;
+    }
+
+    function getMetrics(rows = clients) {
+      const totalSpend = clients.reduce((sum, client) => sum + client.monthlySpend, 0);
+      const growthCount = clients.filter((client) => client.bucket === "Growth Ready").length;
+      const nurtureCount = clients.filter((client) => client.bucket === "Nurturing").length;
+      const growthPercent = Math.round((growthCount / clients.length) * 100);
+      const nurturePercent = Math.round((nurtureCount / clients.length) * 100);
+
+      return {
+        totalSpend,
+        growthCount,
+        nurtureCount,
+        growthPercent,
+        nurturePercent,
+        visibleCount: rows.length
+      };
+    }
+
+    function populateFilters() {
+      const verticals = [...new Set(clients.map((client) => client.vertical))].sort();
+      const objectives = [...new Set(clients.map((client) => client.funnelObjective))].sort();
+      const countries = ["USA", "Canada", "Mexico"];
+      const verticalFilter = document.getElementById("verticalFilter");
+      const objectiveFilter = document.getElementById("objectiveFilter");
+      const countryFilter = document.getElementById("countryFilter");
+
+      verticals.forEach((vertical) => {
+        const option = document.createElement("option");
+        option.value = vertical;
+        option.textContent = `${vertical} / ${zh.verticals[vertical]}`;
+        verticalFilter.appendChild(option);
+      });
+
+      objectives.forEach((objective) => {
+        const option = document.createElement("option");
+        option.value = objective;
+        option.textContent = `${objective} / ${zh.objectives[objective]}`;
+        objectiveFilter.appendChild(option);
+      });
+
+      countries.forEach((country) => {
+        const option = document.createElement("option");
+        option.value = country;
+        option.textContent = `${country} / ${zh.countries[country]}`;
+        countryFilter.appendChild(option);
+      });
+    }
+
+    function updateKpis() {
+      const metrics = getMetrics();
+      document.getElementById("totalSpend").textContent = currencyFormatter.format(metrics.totalSpend);
+      document.getElementById("growthPercent").textContent = `${metrics.growthPercent}%`;
+      document.getElementById("nurturePercent").textContent = `${metrics.nurturePercent}%`;
+      document.getElementById("growthSub").innerHTML = `${metrics.growthCount} clients ready for Smart+ and GMV Max.<span class="zh">${metrics.growthCount} 个客户适合推进 Smart+ 与 GMV Max。</span>`;
+      document.getElementById("nurtureSub").innerHTML = `${metrics.nurtureCount} clients need mid-funnel recovery.<span class="zh">${metrics.nurtureCount} 个客户需要修复中漏斗转化。</span>`;
+
+      const donut = document.getElementById("splitDonut");
+      donut.style.setProperty("--growth-angle", `${metrics.growthPercent * 3.6}deg`);
+      donut.dataset.center = `${metrics.growthPercent}%`;
+      donut.setAttribute("aria-label", `${metrics.growthPercent} percent Growth Ready, ${metrics.nurturePercent} percent Nurturing`);
+
+      document.getElementById("splitLegend").innerHTML = `
+        <div class="legend-item">
+          <span class="legend-swatch" style="--swatch: var(--pink);"></span>
+          <span><span class="legend-title">Growth Ready<span class="zh">增长就绪</span></span><span class="legend-meta">${metrics.growthCount} healthy, high-ROAS clients<span class="zh">${metrics.growthCount} 个漏斗健康且高 ROAS 的客户</span></span></span>
+          <span class="legend-value">${metrics.growthPercent}%</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-swatch" style="--swatch: var(--cyan);"></span>
+          <span><span class="legend-title">Nurturing<span class="zh">培育修复</span></span><span class="legend-meta">${metrics.nurtureCount} leaky, low-ROAS clients<span class="zh">${metrics.nurtureCount} 个漏斗流失且低 ROAS 的客户</span></span></span>
+          <span class="legend-value">${metrics.nurturePercent}%</span>
+        </div>
+      `;
+    }
+
+    function renderFocusList() {
+      const topAccounts = [...clients]
+        .sort((a, b) => b.monthlySpend - a.monthlySpend)
+        .slice(0, 5);
+
+      document.getElementById("focusList").innerHTML = topAccounts.map((client, index) => `
+        <div class="focus-item">
+          <div class="focus-rank">${index + 1}</div>
+          <div>
+            <strong>
+              ${client.clientName}
+              <span class="money">${currencyFormatter.format(client.monthlySpend)}</span>
+            </strong>
+            <span>${client.bucket} in ${client.country}, ${client.vertical}. ROAS ${client.currentRoas.toFixed(1)} with a ${client.funnelObjective.toLowerCase()} objective.<span class="zh">${zh.buckets[client.bucket]}客户，位于${zh.countries[client.country]}，行业为${zh.verticals[client.vertical]}。ROAS ${client.currentRoas.toFixed(1)}，目标为${zh.objectives[client.funnelObjective]}。</span></span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function getFilteredClients() {
+      const normalizedQuery = state.query.trim().toLowerCase();
+
+      return clients.filter((client) => {
+        const matchesQuery = !normalizedQuery ||
+          client.clientName.toLowerCase().includes(normalizedQuery) ||
+          client.vertical.toLowerCase().includes(normalizedQuery) ||
+          client.country.toLowerCase().includes(normalizedQuery) ||
+          zh.countries[client.country].includes(state.query.trim());
+        const matchesBucket = state.bucket === "All" || client.bucket === state.bucket;
+        const matchesVertical = state.vertical === "All" || client.vertical === state.vertical;
+        const matchesObjective = state.objective === "All" || client.funnelObjective === state.objective;
+        const matchesCountry = state.country === "All" || client.country === state.country;
+
+        return matchesQuery && matchesBucket && matchesVertical && matchesObjective && matchesCountry;
+      });
+    }
+
+    function renderRows() {
+      const rows = getFilteredClients();
+      const tbody = document.getElementById("clientRows");
+      const emptyState = document.getElementById("emptyState");
+
+      document.getElementById("resultCount").innerHTML = `${rows.length} of ${clients.length} accounts shown<span class="zh">显示 ${rows.length} / ${clients.length} 个账户</span>`;
+      emptyState.hidden = rows.length > 0;
+
+      tbody.innerHTML = rows
+        .sort((a, b) => b.monthlySpend - a.monthlySpend)
+        .map((client) => {
+          const bucketClass = client.bucket === "Growth Ready" ? "tag-growth" : "tag-nurture";
+          const healthClass = client.funnelHealth === "Healthy" ? "tag-healthy" : "tag-leaky";
+
+          return `
+            <tr>
+              <td class="client-cell"><strong>${client.clientName}</strong><span>Account ${String(client.id).padStart(2, "0")}<span class="zh">账户 ${String(client.id).padStart(2, "0")}</span></span></td>
+              <td>${bilingual(client.country, zh.countries[client.country])}</td>
+              <td>${bilingual(client.vertical, zh.verticals[client.vertical])}</td>
+              <td class="money">${currencyFormatter.format(client.monthlySpend)}</td>
+              <td class="roas">${client.currentRoas.toFixed(1)}x</td>
+              <td><span class="tag ${healthClass}">${client.funnelHealth}<span class="zh">${zh.health[client.funnelHealth]}</span></span></td>
+              <td>${bilingual(client.funnelObjective, zh.objectives[client.funnelObjective])}</td>
+              <td><span class="tag ${bucketClass}">${client.bucket}<span class="zh">${zh.buckets[client.bucket]}</span></span></td>
+              <td class="action-cell"><span class="action-chip ${client.actionType}">${client.action}<span class="zh">${client.actionZh}</span></span></td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    function bindEvents() {
+      document.getElementById("searchInput").addEventListener("input", (event) => {
+        state.query = event.target.value;
+        renderRows();
+      });
+
+      document.getElementById("verticalFilter").addEventListener("change", (event) => {
+        state.vertical = event.target.value;
+        renderRows();
+      });
+
+      document.getElementById("objectiveFilter").addEventListener("change", (event) => {
+        state.objective = event.target.value;
+        renderRows();
+      });
+
+      document.getElementById("countryFilter").addEventListener("change", (event) => {
+        state.country = event.target.value;
+        renderRows();
+      });
+
+      document.querySelectorAll(".bucket-filter").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.bucket = button.dataset.bucket;
+          document.querySelectorAll(".bucket-filter").forEach((item) => {
+            item.setAttribute("aria-pressed", String(item === button));
+          });
+          renderRows();
+        });
+      });
+    }
+
+    populateFilters();
+    updateKpis();
+    renderFocusList();
+    renderRows();
+    bindEvents();
+  </script>
+</body>
+</html>
